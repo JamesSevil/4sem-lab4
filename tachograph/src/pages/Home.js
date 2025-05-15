@@ -63,6 +63,28 @@ const Home = () => {
         navigate('/login');
     };
 
+    const handleDelUser = async () => {
+        // eslint-disable-next-line no-restricted-globals
+        const choice = confirm("Вы уверены, что хотите удалить учетную запись?\nПозже отменить действие будет невозможно!");
+        if (!choice) return;
+        
+        try {
+            const response = await api.delete("/auth", {data: {login: username}});
+
+            if (response.status === 200 && response.data.success) {
+                console.log(response.data.message);
+                alert("Учетная запись удалена!\nСейчас вы будете перенаправлены на страницу авторизации");
+                handleLogout();
+            } else {
+                console.error("Ошибка при удалении учетной записи: ", response.data.message);
+                alert(`Не удалось удалить учетную запись: ${response.data.message}`);
+            }
+        } catch (error) {
+            console.error("Ошибка при удалении учетной записи: ", error.response.data.message);
+            alert(`Не удалось удалить учетную запись: ${error.response.data.message}`);
+        }
+    };
+
     return (
         <div className="home">
             <h2>Добро пожаловать, {username}!</h2>
@@ -106,6 +128,8 @@ const Home = () => {
             </div>
             
             <p><button onClick={handleLogout}>Выйти из системы</button></p>
+
+            <p><button className="del-button" onClick={handleDelUser}>Удалить учетную запись</button></p>
         </div>
     );
 };

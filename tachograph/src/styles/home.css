@@ -105,3 +105,12 @@ button:focus {
 .files button:hover {
     background-color: #e53935;
 }
+
+.home .del-button {
+    background-color: #f44336;
+    color: white;
+}
+
+.home .del-button:hover {
+    background-color: #e53935;
+}

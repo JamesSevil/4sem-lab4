@@ -3,6 +3,7 @@ import Users from "../mongo/users.js";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import verifytoken from "./verifytoken.js";
 
 dotenv.config();
 
@@ -53,7 +54,7 @@ router.post("/login", async (req, res) => {
     }
 });
 
-router.put('/', async (req, res) => {
+router.put('/', verifytoken, async (req, res) => {
     const {login, oldPassword, newPassword} = req.body;
     try {
         const user = await Users.findOne({login});
@@ -75,7 +76,7 @@ router.put('/', async (req, res) => {
     }
 });
 
-router.post("/refresh", (req, res) => {
+router.post("/refresh", verifytoken, (req, res) => {
     const {refreshToken} = req.body;
     try {
         if (!refreshToken) {
@@ -92,6 +93,22 @@ router.post("/refresh", (req, res) => {
     
             res.status(200).json({success: true, accessToken: newAccessToken});
         });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({success: false, message: "Ошибка сервера!"});
+    }
+});
+
+router.delete("/", async (req, res) => {
+    const {login} = req.body;
+    try {
+        const user = await Users.findOne({login});
+        if (!user) {
+            return res.status(404).json({success: false, message: "Пользователь не найден в базе данных!"});
+        }
+        
+        await Users.deleteOne({login});
+        res.status(200).json({success: true, message: "Учетная запись успешно удалена!"});
     } catch (error) {
         console.error(error);
         res.status(500).json({success: false, message: "Ошибка сервера!"});
